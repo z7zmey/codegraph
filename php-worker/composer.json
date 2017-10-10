@@ -1,0 +1,24 @@
+{
+    "name": "z7zmey/code-graph-php-worker",
+    "type": "project",
+    "license": "agpl",
+    "authors": [
+        {
+            "name": "z7zmey",
+            "email": "z7zmey@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=7.0",
+        "roave/security-advisories": "dev-master",
+        "nategood/commando": "^0.2.9",
+        "nikic/php-parser": "^3.0",
+        "ircmaxell/php-cfg": "dev-master",
+        "phpdocumentor/reflection-docblock": "^4.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "Worker\\": "./"
+        }
+    }
+}

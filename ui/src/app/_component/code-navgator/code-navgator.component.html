@@ -1,0 +1,35 @@
+<form (submit)="search()">
+  <div class="row">
+    <div class="col-12">
+      <div class="form-group">
+        <input class="form-control" placeholder="search by method name" name="query" [(ngModel)]="query" autocomplete="off">
+      </div>
+    </div>
+  </div>
+</form>
+
+<div class="row mb-2" *ngIf="found">
+  <div class="col-12">
+    <div class="list-group">
+      <a class="list-group-item" *ngFor="let item of found" (click)="show(item.id)" style="cursor: pointer">
+        {{item.id}}
+      </a>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-body svg-container">
+        <svg id="svg" width=960 height=200></svg>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row" *ngIf="code">
+  <div class="col-12">
+    <prism-block [code]="code" [language]="'php'"></prism-block>
+  </div>
+</div>

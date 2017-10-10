@@ -1,0 +1,18 @@
+<div fxLayout="column" fxFill>
+
+  <!-- <app-nav></app-nav> -->
+
+  <div class="container-fluid mb-3 mt-3">
+    <div class="row">
+      <div class="col-3">
+        <div class="card">
+          <tree-root [nodes]="nodes" (activate)="onEvent($event)"></tree-root>
+        </div>
+      </div>
+
+      <div class="col-9">
+        <router-outlet></router-outlet>
+      </div>
+    </div>
+  </div>
+</div>
