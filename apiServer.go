@@ -25,6 +25,6 @@ import (
 // ListenAndServeAPI TODO
 func ListenAndServeAPI() {
 	router := NewRouter()
-	err := http.ListenAndServe(":8080", router)
+	err := http.ListenAndServe("0.0.0.0:8080", router)
 	log.Fatal(err)
 }

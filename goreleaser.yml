@@ -1,0 +1,34 @@
+builds:
+  - binary: codegraph
+    goos:
+      # - windows
+      - darwin
+      - linux
+    goarch:
+      - amd64
+      - 386
+
+archive:
+  files:
+    - php-worker/**/*.php
+    - ui/dist/app/*
+
+fpm:
+  vendor: Slizov Vadim <z7zmey@gmail.com>
+  maintainer: Slizov Vadim <z7zmey@gmail.com>
+  description: PHP code visualisation tool
+  license: AGPL3
+  formats:
+    - deb
+  # dependencies:
+  #   - php 
+  files:
+    "php-worker/": "/usr/local/lib/codegraph/php-worker"
+    "ui/dist/": "/usr/local/lib/codegraph/ui/dist"
+
+dockers:
+  - 
+    image: z7zmey/codegraph
+    extra_files:
+    - php-worker
+    - ui/dist

@@ -3,6 +3,7 @@
 # compiled output
 debug
 codegraph
+/dist
 
 # IDEs and editors
 /.idea

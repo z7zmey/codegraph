@@ -33,6 +33,11 @@ import (
 
 func ProcessPath(dir string) {
 	codeGraphDir, err := filepath.Abs(filepath.Dir(os.Args[0]))
+
+	if _, err := os.Stat(codeGraphDir+"/php-worker"); os.IsNotExist(err) {
+		codeGraphDir = "/usr/local/lib/codegraph"
+	}
+
 	if err != nil {
 		log.Fatal(err)
 	}

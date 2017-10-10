@@ -34,7 +34,7 @@ import (
 )
 
 func Index(w http.ResponseWriter, r *http.Request) {
-	http.Redirect(w, r, "localhost:8080/whatever", http.StatusMovedPermanently)
+	http.Redirect(w, r, "/app", http.StatusMovedPermanently)
 }
 
 func GetAll(w http.ResponseWriter, r *http.Request) {

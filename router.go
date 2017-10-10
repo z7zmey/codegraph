@@ -33,6 +33,10 @@ func NewRouter() *mux.Router {
 		log.Fatal(err)
 	}
 
+	if _, err := os.Stat(codeGraphDir+"/ui"); os.IsNotExist(err) {
+		codeGraphDir = "/usr/local/lib/codegraph"
+	}
+
 	router := mux.NewRouter() //.StrictSlash(true)
 
 	router.PathPrefix("/app").Handler(http.StripPrefix("/app", http.FileServer(http.Dir(codeGraphDir+"/ui/dist/app"))))
