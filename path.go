@@ -36,16 +36,7 @@ import (
 
 func ProcessPath() {
 	var err error
-	var dir = Config.path
-
-	if len(dir) == 0 {
-		path, err := os.Getwd()
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		dir = ArrayFlags{path}
-	}
+	var dirs = Config.path
 
 	codeGraphDir, err := filepath.Abs(filepath.Dir(os.Args[0]))
 
@@ -66,8 +57,8 @@ func ProcessPath() {
 	go processFileAst(codeGraphDir, astFileChan, &wg)
 
 	var targets []string
-	for _, path := range dir {
-		err = filepath.Walk(path, func(path string, f os.FileInfo, err error) error {
+	for _, dir := range dirs {
+		err = filepath.Walk(dir, func(path string, f os.FileInfo, err error) error {
 			if !f.IsDir() && filepath.Ext(path) == ".php" && !inExclude(path) {
 				targets = append(targets, path)
 			}
@@ -92,10 +83,10 @@ func ProcessPath() {
 	go setMethodsImplementations()
 
 	var cfgFileChan = make(chan string)
-	go processFileCfg(codeGraphDir, cfgFileChan)
-	go processFileCfg(codeGraphDir, cfgFileChan)
-	go processFileCfg(codeGraphDir, cfgFileChan)
-	go processFileCfg(codeGraphDir, cfgFileChan)
+	go processFileCfg(codeGraphDir, cfgFileChan, &wg)
+	go processFileCfg(codeGraphDir, cfgFileChan, &wg)
+	go processFileCfg(codeGraphDir, cfgFileChan, &wg)
+	go processFileCfg(codeGraphDir, cfgFileChan, &wg)
 
 	for _, target := range targets {
 		if (checkSigterm()) {
@@ -136,7 +127,7 @@ func processFileAst(codeGraphDir string, files chan string, wg *sync.WaitGroup) 
 	}
 }
 
-func processFileCfg(codeGraphDir string, files chan string) {
+func processFileCfg(codeGraphDir string, files chan string, wg *sync.WaitGroup) {
 	for file := range files {
 		fmt.Printf("proces cfg for: %s\n", file)
 		cmd := exec.Command("php", codeGraphDir+"/php-worker/worker.php", "--file", file, "--cfg")
@@ -145,6 +136,8 @@ func processFileCfg(codeGraphDir string, files chan string) {
 			cmd.Stderr = os.Stderr
 		}
 		cmd.Run()
+		cmd.Wait()
+		wg.Done()
 	}
 }
 
@@ -202,7 +195,7 @@ func inExclude(path string) bool {
 	for _, exclude := range Config.exclude {
 		exclude, err := realpath.Realpath(exclude)
 		checkErr(err)
-		
+
 		if strings.HasPrefix(path, exclude) {
 			return true
 		}

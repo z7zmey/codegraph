@@ -31,6 +31,8 @@ import (
 	"github.com/cayleygraph/cayley"
 	"github.com/cayleygraph/cayley/quad"
 	"github.com/cayleygraph/cayley/schema"
+
+	"github.com/yookoala/realpath"
 )
 
 func Index(w http.ResponseWriter, r *http.Request) {
@@ -47,15 +49,27 @@ func GetAll(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetTree(w http.ResponseWriter, r *http.Request) {
-	dir, err := os.Getwd()
-	if err != nil {
-		log.Fatal(err)
+	resp := PathNode{
+		"",
+		"root",
+		make([]*PathNode, 0),
+		true,
+		true,
 	}
 
-	nodes := GetPathTree(dir)
+	if len(Config.path) == 1 {
+		resp = GetPathTree(Config.path[0])
+	} else if len(Config.path) > 1 {
+		for _, dir := range Config.path {
+			dir, err := realpath.Realpath(dir)
+			checkErr(err)
+			pathNode := GetPathTree(dir)
+			resp.Children = append(resp.Children, &pathNode)
+		}
+	}
 
 	encoder := json.NewEncoder(w)
-	encoder.Encode(nodes)
+	encoder.Encode(resp)
 }
 
 type umlMethod struct {

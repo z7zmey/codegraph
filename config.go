@@ -19,6 +19,8 @@ package main
 
 import (
 	"flag"
+	"log"
+	"os"
 	"strings"
 )
 
@@ -34,11 +36,11 @@ func (i *ArrayFlags) Set(value string) error {
 }
 
 type CGConfig struct {
-	path ArrayFlags
+	path    ArrayFlags
 	exclude ArrayFlags
-	debug bool
-	host string
-	port int
+	debug   bool
+	host    string
+	port    int
 }
 
 var Config = CGConfig{}
@@ -60,4 +62,13 @@ func ParseConfigFlags() {
 	flag.IntVar(&Config.port, "p", 8080, "port (shorthand)")
 
 	flag.Parse()
+
+	if len(Config.path) == 0 {
+		path, err := os.Getwd()
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		Config.path = ArrayFlags{path}
+	}
 }
