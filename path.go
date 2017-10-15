@@ -63,17 +63,26 @@ func ProcessPath() {
 	go processFileAst(codeGraphDir, astFileChan, &wg)
 	go processFileAst(codeGraphDir, astFileChan, &wg)
 
+	var targets []string
 	for _, path := range dir {
 		err = filepath.Walk(path, func(path string, f os.FileInfo, err error) error {
 			if !f.IsDir() && filepath.Ext(path) == ".php" && !inExclude(path) {
-				wg.Add(1)
-				astFileChan <- path
+				targets = append(targets, path)
 			}
 			return nil
 		})
 		if err != nil {
 			log.Fatal(err)
 		}
+	}
+
+	for _, target := range targets {
+		if (checkSigterm()) {
+			return
+		}
+
+		wg.Add(1)
+		astFileChan <- target
 	}
 
 	wg.Wait()
@@ -85,16 +94,29 @@ func ProcessPath() {
 	go processFileCfg(codeGraphDir, cfgFileChan)
 	go processFileCfg(codeGraphDir, cfgFileChan)
 	go processFileCfg(codeGraphDir, cfgFileChan)
-	for _, path := range dir {
-		err = filepath.Walk(path, func(path string, f os.FileInfo, err error) error {
-			if !f.IsDir() && filepath.Ext(path) == ".php" && !inExclude(path) {
-				cfgFileChan <- path
-			}
-			return nil
-		})
-		if err != nil {
-			log.Fatal(err)
+
+	for _, target := range targets {
+		if (checkSigterm()) {
+			return
 		}
+
+		wg.Add(1)
+		cfgFileChan <- target
+	}
+
+	wg.Wait()
+
+	fmt.Println("files processing is finished")
+}
+
+func checkSigterm() bool {
+	select {
+	case sig := <-OsSigChan:
+		fmt.Println("finishing ast task")
+		OsSigChan <- sig
+		return true
+	default:
+		return false
 	}
 }
 
@@ -132,6 +154,10 @@ func setMethodsImplementations() {
 	checkErr(err)
 
 	for _, method := range methods {
+		if (checkSigterm()) {
+			return
+		}
+		
 		setMethodImplementations(method)
 	}
 }
@@ -159,7 +185,7 @@ func setMethodImplementations(method AstMethod) {
 	qw := graph.NewWriter(store)
 	id, err := schema.WriteAsQuads(qw, method)
 	checkErr(err)
-	if (Config.debug) {
+	if Config.debug {
 		fmt.Printf("saving abstract method implementations %s: %+v\n", id, method)
 	}
 

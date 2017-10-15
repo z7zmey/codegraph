@@ -28,6 +28,7 @@ import (
 )
 
 var store *cayley.Handle
+var OsSigChan chan os.Signal
 
 func main() {
 	ParseConfigFlags()
@@ -40,9 +41,9 @@ func main() {
 	checkErr(err)
 	defer store.Close()
 
-	sigs := make(chan os.Signal, 1)
+	OsSigChan = make(chan os.Signal, 1)
 
-	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
+	signal.Notify(OsSigChan, syscall.SIGINT, syscall.SIGTERM)
 
 	go ListenAndServeAPI()
 	go ListenAndServeSocket()
@@ -50,7 +51,7 @@ func main() {
 	// TODO: get a dir from cli
 	ProcessPath()
 
-	<-sigs
-	fmt.Println("test")
+	<-OsSigChan
+	fmt.Println()
 	fmt.Println("exiting")
 }
