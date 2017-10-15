@@ -28,9 +28,10 @@ export class UmlComponent implements OnInit {
         .data(node.methods)
         .enter()
         .append("rect")
-        .attr('data-method', '');
+        .attr('data-method', '')
+        .style("cursor", "pointer");
 
-      var headerRect = g.insert("rect", ":first-child");
+      var headerRect = g.insert("rect", ":first-child").style("fill", "#eee");
 
       rectangles.attr("x", 0)
         .attr("y", function (d, k) {
@@ -49,9 +50,10 @@ export class UmlComponent implements OnInit {
         .attr('data-method', '')
         .text(function (d) {
           return d.Name
-        });
+        })
+        .style("cursor", "pointer");
 
-      var headerText = g.insert("text").text(node['name']);
+      var headerText = g.insert("text").text(node['name']).style("font-weight", "bold");
 
       headerText.each(function () {
         var textWidth = this.getComputedTextLength();
