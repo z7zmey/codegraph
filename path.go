@@ -30,6 +30,8 @@ import (
 	"github.com/cayleygraph/cayley/graph"
 	"github.com/cayleygraph/cayley/quad"
 	"github.com/cayleygraph/cayley/schema"
+
+	"github.com/yookoala/realpath"
 )
 
 func ProcessPath() {
@@ -157,7 +159,7 @@ func setMethodsImplementations() {
 		if (checkSigterm()) {
 			return
 		}
-		
+
 		setMethodImplementations(method)
 	}
 }
@@ -198,6 +200,9 @@ func setMethodImplementations(method AstMethod) {
 
 func inExclude(path string) bool {
 	for _, exclude := range Config.exclude {
+		exclude, err := realpath.Realpath(exclude)
+		checkErr(err)
+		
 		if strings.HasPrefix(path, exclude) {
 			return true
 		}
