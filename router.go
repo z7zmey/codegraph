@@ -22,6 +22,9 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
+
+	"github.com/yookoala/realpath"
 
 	"github.com/gorilla/mux"
 )
@@ -33,25 +36,20 @@ func NewRouter() *mux.Router {
 		log.Fatal(err)
 	}
 
-	if _, err := os.Stat(codeGraphDir+"/ui"); os.IsNotExist(err) {
+	if _, err := os.Stat(codeGraphDir + "/ui"); os.IsNotExist(err) {
 		codeGraphDir = "/usr/local/lib/codegraph"
 	}
 
 	router := mux.NewRouter() //.StrictSlash(true)
 
-	router.PathPrefix("/app").Handler(http.StripPrefix("/app", http.FileServer(http.Dir(codeGraphDir+"/ui/dist/app"))))
+	router.PathPrefix("/app{_:.*}").Handler(wrapByLogger(StaticFileServer, "app"))
 
 	for _, route := range routes {
-		var handler http.Handler
-
-		handler = route.HandlerFunc
-		handler = Logger(handler, route.Name)
-
 		r := router.
 			Methods(route.Method).
 			Path(route.Pattern).
 			Name(route.Name).
-			Handler(handler)
+			Handler(wrapByLogger(route.HandlerFunc, route.Name))
 
 		for key, val := range route.queries {
 			r.Queries(key, val)
@@ -59,4 +57,34 @@ func NewRouter() *mux.Router {
 	}
 
 	return router
+}
+
+func wrapByLogger(f func(w http.ResponseWriter, r *http.Request), name string) http.Handler {
+	var appHandler http.Handler
+	appHandler = http.HandlerFunc(f)
+	return Logger(appHandler, "app")
+}
+
+func StaticFileServer(w http.ResponseWriter, r *http.Request) {
+	codeGraphDir, err := filepath.Abs(filepath.Dir(os.Args[0]))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if _, err := os.Stat(codeGraphDir + "/ui"); os.IsNotExist(err) {
+		codeGraphDir = "/usr/local/lib/codegraph"
+	}
+
+	path, err := realpath.Realpath(codeGraphDir + "/ui/dist/" + r.URL.Path)
+
+	if err != nil || !strings.HasPrefix(path, codeGraphDir+"/ui/dist/app") {
+		http.ServeFile(w, r, codeGraphDir+"/ui/dist/app/index.html")
+		return
+	}
+
+	if _, err := os.Stat(path); os.IsNotExist(err) { // if target file not exist
+		http.ServeFile(w, r, codeGraphDir+"/ui/dist/app/index.html")
+	}
+
+	http.ServeFile(w, r, path)
 }
