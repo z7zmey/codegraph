@@ -92,7 +92,7 @@ func loadUmlForFile(pathes []string, classes *[]AstClass) {
 }
 
 func GetUml(w http.ResponseWriter, r *http.Request) {
-	var resp []uml
+	resp := make([]uml, 0)
 	vars := mux.Vars(r)
 
 	var classes []AstClass
