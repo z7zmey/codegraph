@@ -70,7 +70,7 @@ func ProcessPath() {
 	}
 
 	for _, target := range targets {
-		if (checkSigterm()) {
+		if checkSigterm() {
 			return
 		}
 
@@ -89,7 +89,7 @@ func ProcessPath() {
 	go processFileCfg(codeGraphDir, cfgFileChan, &wg)
 
 	for _, target := range targets {
-		if (checkSigterm()) {
+		if checkSigterm() {
 			return
 		}
 
@@ -149,7 +149,7 @@ func setMethodsImplementations() {
 	checkErr(err)
 
 	for _, method := range methods {
-		if (checkSigterm()) {
+		if checkSigterm() {
 			return
 		}
 
@@ -158,6 +158,8 @@ func setMethodsImplementations() {
 }
 
 func setMethodImplementations(method AstMethod) {
+	fmt.Printf("proces method implementations for: %s\n", method.ID)
+
 	follow := cayley.StartPath(store).In(quad.IRI("ast:extends"), quad.IRI("ast:implements"))
 
 	p := cayley.StartPath(store, quad.IRI(method.ID)).
@@ -165,7 +167,7 @@ func setMethodImplementations(method AstMethod) {
 		Out(quad.IRI("ast:class")).
 		FollowRecursive(follow, []string{}).
 		In(quad.IRI("ast:class")).
-		Has(quad.IRI("ast:name"), quad.String("register")).
+		Has(quad.IRI("ast:name"), quad.String(method.Name)).
 		Except(cayley.StartPath(store).Has(quad.IRI("ast:is_abstract"), quad.Bool(true)))
 
 	var implementations []AstMethod
@@ -174,6 +176,9 @@ func setMethodImplementations(method AstMethod) {
 
 	method.Implementations = []quad.IRI{}
 	for _, implementation := range implementations {
+		if (Config.debug) {
+			fmt.Printf("find implementation for %s: %s\n", method.ID, implementation.ID)
+		}
 		method.Implementations = append(method.Implementations, quad.IRI(implementation.ID))
 	}
 
