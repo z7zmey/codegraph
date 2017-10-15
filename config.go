@@ -36,6 +36,7 @@ func (i *ArrayFlags) Set(value string) error {
 type CGConfig struct {
 	path ArrayFlags
 	exclude ArrayFlags
+	debug bool
 }
 
 var Config = CGConfig{}
@@ -46,6 +47,9 @@ func ParseConfigFlags() {
 
 	flag.Var(&Config.exclude, "exclude", "exclude path")
 	flag.Var(&Config.exclude, "e", "exclude path (shorthand)")
+
+	flag.BoolVar(&Config.debug, "debug", false, "print debug info")
+	flag.BoolVar(&Config.debug, "d", false, "print debug info (shorthand)")
 
 	flag.Parse()
 }

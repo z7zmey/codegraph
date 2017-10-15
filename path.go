@@ -100,9 +100,12 @@ func ProcessPath() {
 
 func processFileAst(codeGraphDir string, files chan string, wg *sync.WaitGroup) {
 	for file := range files {
+		fmt.Printf("proces ast for: %s\n", file)
 		cmd := exec.Command("php", codeGraphDir+"/php-worker/worker.php", "--file", file)
-		cmd.Stdout = os.Stdout
-		cmd.Stderr = os.Stderr
+		if Config.debug {
+			cmd.Stdout = os.Stdout
+			cmd.Stderr = os.Stderr
+		}
 		cmd.Run()
 		cmd.Wait()
 		wg.Done()
@@ -111,9 +114,12 @@ func processFileAst(codeGraphDir string, files chan string, wg *sync.WaitGroup) 
 
 func processFileCfg(codeGraphDir string, files chan string) {
 	for file := range files {
+		fmt.Printf("proces cfg for: %s\n", file)
 		cmd := exec.Command("php", codeGraphDir+"/php-worker/worker.php", "--file", file, "--cfg")
-		cmd.Stdout = os.Stdout
-		cmd.Stderr = os.Stderr
+		if Config.debug {
+			cmd.Stdout = os.Stdout
+			cmd.Stderr = os.Stderr
+		}
 		cmd.Run()
 	}
 }
@@ -153,7 +159,9 @@ func setMethodImplementations(method AstMethod) {
 	qw := graph.NewWriter(store)
 	id, err := schema.WriteAsQuads(qw, method)
 	checkErr(err)
-	fmt.Printf("saving abstract method implementations %s: %+v\n", id, method)
+	if (Config.debug) {
+		fmt.Printf("saving abstract method implementations %s: %+v\n", id, method)
+	}
 
 	err = qw.Flush()
 	checkErr(err)

@@ -95,14 +95,19 @@ func handleRequest(connections chan net.Conn) {
 }
 
 func handleMessage(msg Message) {
-	fmt.Printf("process message: %+v\n", msg)
+	if Config.debug {
+		fmt.Printf("process message: %+v\n", msg)
+	}
 
 	qw := graph.NewWriter(store)
 
 	for _, astFile := range msg.Files {
 		var id, err = schema.WriteAsQuads(qw, astFile)
 		checkErr(err)
-		fmt.Printf("saving %s: %+v\n", id, astFile)
+
+		if Config.debug {
+			fmt.Printf("saving %s: %+v\n", id, astFile)
+		}
 
 		CacheClear()
 	}
@@ -110,7 +115,10 @@ func handleMessage(msg Message) {
 	for _, AstClass := range msg.Classes {
 		var id, err = schema.WriteAsQuads(qw, AstClass)
 		checkErr(err)
-		fmt.Printf("saving %s: %+v\n", id, AstClass)
+
+		if Config.debug {
+			fmt.Printf("saving %s: %+v\n", id, AstClass)
+		}
 
 		CacheClear()
 	}
@@ -118,7 +126,10 @@ func handleMessage(msg Message) {
 	for _, astInterface := range msg.Interfaces {
 		var id, err = schema.WriteAsQuads(qw, astInterface)
 		checkErr(err)
-		fmt.Printf("saving %s: %+v\n", id, astInterface)
+
+		if Config.debug {
+			fmt.Printf("saving %s: %+v\n", id, astInterface)
+		}
 
 		CacheClear()
 	}
@@ -126,7 +137,10 @@ func handleMessage(msg Message) {
 	for _, astMethod := range msg.Methods {
 		var id, err = schema.WriteAsQuads(qw, astMethod)
 		checkErr(err)
-		fmt.Printf("saving %s: %+v\n", id, astMethod)
+
+		if Config.debug {
+			fmt.Printf("saving %s: %+v\n", id, astMethod)
+		}
 
 		CacheClear()
 	}
@@ -134,7 +148,12 @@ func handleMessage(msg Message) {
 	for _, astProperty := range msg.Properties {
 		var id, err = schema.WriteAsQuads(qw, astProperty)
 		checkErr(err)
-		fmt.Printf("saving %s: %+v\n", id, astProperty)
+
+		if Config.debug {
+			fmt.Printf("saving %s: %+v\n", id, astProperty)
+		}
+
+		CacheClear()
 	}
 
 	err := qw.Close()
