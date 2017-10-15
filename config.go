@@ -37,19 +37,27 @@ type CGConfig struct {
 	path ArrayFlags
 	exclude ArrayFlags
 	debug bool
+	host string
+	port int
 }
 
 var Config = CGConfig{}
 
 func ParseConfigFlags() {
 	flag.Var(&Config.path, "path", "path to sources")
-	flag.Var(&Config.path, "p", "path to sources (shorthand)")
+	flag.Var(&Config.path, "P", "path to sources (shorthand)")
 
 	flag.Var(&Config.exclude, "exclude", "exclude path")
 	flag.Var(&Config.exclude, "e", "exclude path (shorthand)")
 
 	flag.BoolVar(&Config.debug, "debug", false, "print debug info")
 	flag.BoolVar(&Config.debug, "d", false, "print debug info (shorthand)")
+
+	flag.StringVar(&Config.host, "host", "127.0.0.1", "host")
+	flag.StringVar(&Config.host, "h", "127.0.0.1", "host (shorthand)")
+
+	flag.IntVar(&Config.port, "port", 8080, "port")
+	flag.IntVar(&Config.port, "p", 8080, "port (shorthand)")
 
 	flag.Parse()
 }

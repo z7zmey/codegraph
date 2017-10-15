@@ -18,6 +18,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 )
@@ -25,6 +26,8 @@ import (
 // ListenAndServeAPI TODO
 func ListenAndServeAPI() {
 	router := NewRouter()
-	err := http.ListenAndServe("0.0.0.0:8080", router)
+
+	serverHost := fmt.Sprintf("%s:%d", Config.host, Config.port)
+	err := http.ListenAndServe(serverHost, router)
 	log.Fatal(err)
 }

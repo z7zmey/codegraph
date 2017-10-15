@@ -51,6 +51,6 @@ func main() {
 	ProcessPath()
 
 	<-sigs
-	fmt.Println()
+	fmt.Println("test")
 	fmt.Println("exiting")
 }
