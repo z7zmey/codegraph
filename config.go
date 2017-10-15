@@ -18,39 +18,34 @@
 package main
 
 import (
-	"fmt"
-	"os"
-	"os/signal"
-	"runtime"
-	"syscall"
-
-	"github.com/cayleygraph/cayley"
+	"flag"
+	"strings"
 )
 
-var store *cayley.Handle
+type ArrayFlags []string
 
-func main() {
-	ParseConfigFlags()
+func (i *ArrayFlags) String() string {
+	return strings.Join(*i, " ")
+}
 
-	// разобраться с ошибкой fatal error: concurrent map writes
-	runtime.GOMAXPROCS(1)
+func (i *ArrayFlags) Set(value string) error {
+	*i = append(*i, value)
+	return nil
+}
 
-	var err error
-	store, err = cayley.NewMemoryGraph()
-	checkErr(err)
-	defer store.Close()
+type CGConfig struct {
+	path ArrayFlags
+	exclude ArrayFlags
+}
 
-	sigs := make(chan os.Signal, 1)
+var Config = CGConfig{}
 
-	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
+func ParseConfigFlags() {
+	flag.Var(&Config.path, "path", "path to sources")
+	flag.Var(&Config.path, "p", "path to sources (shorthand)")
 
-	go ListenAndServeAPI()
-	go ListenAndServeSocket()
+	flag.Var(&Config.exclude, "exclude", "exclude path")
+	flag.Var(&Config.exclude, "e", "exclude path (shorthand)")
 
-	// TODO: get a dir from cli
-	ProcessPath()
-
-	<-sigs
-	fmt.Println()
-	fmt.Println("exiting")
+	flag.Parse()
 }

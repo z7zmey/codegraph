@@ -23,6 +23,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 	"sync"
 
 	"github.com/cayleygraph/cayley"
@@ -31,10 +32,22 @@ import (
 	"github.com/cayleygraph/cayley/schema"
 )
 
-func ProcessPath(dir string) {
+func ProcessPath() {
+	var err error
+	var dir = Config.path
+
+	if len(dir) == 0 {
+		path, err := os.Getwd()
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		dir = ArrayFlags{path}
+	}
+
 	codeGraphDir, err := filepath.Abs(filepath.Dir(os.Args[0]))
 
-	if _, err := os.Stat(codeGraphDir+"/php-worker"); os.IsNotExist(err) {
+	if _, err := os.Stat(codeGraphDir + "/php-worker"); os.IsNotExist(err) {
 		codeGraphDir = "/usr/local/lib/codegraph"
 	}
 
@@ -50,15 +63,17 @@ func ProcessPath(dir string) {
 	go processFileAst(codeGraphDir, astFileChan, &wg)
 	go processFileAst(codeGraphDir, astFileChan, &wg)
 
-	err = filepath.Walk(dir, func(path string, f os.FileInfo, err error) error {
-		if !f.IsDir() && filepath.Ext(path) == ".php" {
-			wg.Add(1)
-			astFileChan <- path
+	for _, path := range dir {
+		err = filepath.Walk(path, func(path string, f os.FileInfo, err error) error {
+			if !f.IsDir() && filepath.Ext(path) == ".php" && !inExclude(path) {
+				wg.Add(1)
+				astFileChan <- path
+			}
+			return nil
+		})
+		if err != nil {
+			log.Fatal(err)
 		}
-		return nil
-	})
-	if err != nil {
-		log.Fatal(err)
 	}
 
 	wg.Wait()
@@ -70,15 +85,16 @@ func ProcessPath(dir string) {
 	go processFileCfg(codeGraphDir, cfgFileChan)
 	go processFileCfg(codeGraphDir, cfgFileChan)
 	go processFileCfg(codeGraphDir, cfgFileChan)
-
-	err = filepath.Walk(dir, func(path string, f os.FileInfo, err error) error {
-		if !f.IsDir() && filepath.Ext(path) == ".php" {
-			cfgFileChan <- path
+	for _, path := range dir {
+		err = filepath.Walk(path, func(path string, f os.FileInfo, err error) error {
+			if !f.IsDir() && filepath.Ext(path) == ".php" && !inExclude(path) {
+				cfgFileChan <- path
+			}
+			return nil
+		})
+		if err != nil {
+			log.Fatal(err)
 		}
-		return nil
-	})
-	if err != nil {
-		log.Fatal(err)
 	}
 }
 
@@ -144,4 +160,14 @@ func setMethodImplementations(method AstMethod) {
 
 	err = qw.Close()
 	checkErr(err)
+}
+
+func inExclude(path string) bool {
+	for _, exclude := range Config.exclude {
+		if strings.HasPrefix(path, exclude) {
+			return true
+		}
+	}
+
+	return false
 }
