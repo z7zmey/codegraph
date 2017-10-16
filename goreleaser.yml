@@ -23,8 +23,8 @@ fpm:
   # dependencies:
   #   - php 
   files:
-    "php-worker/": "/usr/local/lib/codegraph/php-worker"
-    "ui/dist/": "/usr/local/lib/codegraph/ui/dist"
+    "php-worker/": "/opt/codegraph/php-worker"
+    "ui/dist/": "/opt/codegraph/ui/dist"
 
 dockers:
   - 

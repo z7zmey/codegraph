@@ -37,7 +37,7 @@ func NewRouter() *mux.Router {
 	}
 
 	if _, err := os.Stat(codeGraphDir + "/ui"); os.IsNotExist(err) {
-		codeGraphDir = "/usr/local/lib/codegraph"
+		codeGraphDir = "/opt/codegraph"
 	}
 
 	router := mux.NewRouter() //.StrictSlash(true)
@@ -72,7 +72,7 @@ func StaticFileServer(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if _, err := os.Stat(codeGraphDir + "/ui"); os.IsNotExist(err) {
-		codeGraphDir = "/usr/local/lib/codegraph"
+		codeGraphDir = "/opt/codegraph"
 	}
 
 	path, err := realpath.Realpath(codeGraphDir + "/ui/dist/" + r.URL.Path)
