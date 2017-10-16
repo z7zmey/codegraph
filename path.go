@@ -176,7 +176,7 @@ func setMethodImplementations(method AstMethod) {
 
 	method.Implementations = []quad.IRI{}
 	for _, implementation := range implementations {
-		if (Config.debug) {
+		if Config.debug {
 			fmt.Printf("find implementation for %s: %s\n", method.ID, implementation.ID)
 		}
 		method.Implementations = append(method.Implementations, quad.IRI(implementation.ID))

@@ -47,6 +47,7 @@ func main() {
 
 	go ListenAndServeAPI()
 	go ListenAndServeSocket()
+	go ListenAndServeAstSocket()
 
 	// TODO: get a dir from cli
 	ProcessPath()

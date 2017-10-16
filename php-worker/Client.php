@@ -1,5 +1,5 @@
 <?php
-/** 
+/**
  * Copyright © 2017 Slizov Vadim <z7zmey@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -30,19 +30,51 @@ class Client
         $this->port = $port;
     }
     
-    public function sendMessage(array $data) {
+    public function sendMessage(array $data, int $clearCache = 0)
+    {
         if (($socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP)) === false) {
-            die(sprintf('Unable to create a socket: %s', socket_strerror(socket_last_error())));
+            die(sprintf("Unable to create a socket: %s\n", socket_strerror(socket_last_error())));
+        }
+        
+        if (!@socket_connect($socket, $this->host, $this->port)) {
+            die(sprintf("Unable to connect to server %s:%s: %s\n", $this->host, $this->port, socket_strerror(socket_last_error())));
         }
     
-        if (!@socket_connect($socket, $this->host, $this->port)) {
-            die(sprintf('Unable to connect to server %s:%s: %s', $this->host, $this->port, socket_strerror(socket_last_error())));
+        if (socket_write($socket, $clearCache, 1) === false) {
+            die(sprintf("Unable to write to socket: %s\n", socket_strerror(socket_last_error())));
         }
         
         if (socket_write($socket, json_encode($data)) === false) {
-            die(sprintf("Unable to write to socket: %s", socket_strerror(socket_last_error())));
+            die(sprintf("Unable to write to socket: %s\n", socket_strerror(socket_last_error())));
         }
         
         socket_close($socket);
+    }
+    
+    public function readMessage()
+    {
+        if (($socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP)) === false) {
+            die(sprintf("Unable to create a socket: %s\n", socket_strerror(socket_last_error())));
+        }
+        
+        if (!@socket_connect($socket, $this->host, $this->port + 1)) {
+            die(sprintf("Unable to connect to server %s:%s: %s\n", $this->host, $this->port + 1, socket_strerror(socket_last_error())));
+        }
+        
+        $msg = '';
+        do {
+            if (false === ($buf = socket_read($socket, 2048, PHP_BINARY_READ))) {
+                die(sprintf("Не удалось выполнить socket_read(): причина: %s\n", socket_strerror(socket_last_error($socket))));
+            }
+            if (!$buf = trim($buf)) {
+                break;
+            }
+            
+            $msg .= $buf;
+        } while (true);
+        
+        socket_close($socket);
+        
+        return json_decode($msg, true);
     }
 }

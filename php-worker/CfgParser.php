@@ -37,8 +37,7 @@ class CfgParser
     
     public function processFileCfg($file)
     {
-        $rawJson = file_get_contents('http://localhost:8080/api/ast');
-        $astData = json_decode($rawJson, true);
+        $astData = $this->client->readMessage();
         
         $methodsReturnTypes = $this->getMethodsReturnTypes($astData['Methods']);
         $propertyTypes = $this->getPropertyTypes($astData['Properties']);

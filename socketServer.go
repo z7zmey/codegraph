@@ -81,16 +81,25 @@ func ListenAndServeSocket() {
 // Handles incoming requests.
 func handleRequest(connections chan net.Conn) {
 	for conn := range connections {
+
+		clearAstCache := make([]byte, 1)
+		_, err := conn.Read(clearAstCache)
+		checkErr(err)
+
 		d := json.NewDecoder(conn)
 
 		var msg Message
-		err := d.Decode(&msg)
+		err = d.Decode(&msg)
 		if err != nil {
 			fmt.Println(err)
 		}
 		handleMessage(msg)
 
 		conn.Close()
+
+		if (clearAstCache[0] == '1') {
+			CacheClear()
+		}
 	}
 }
 
@@ -108,8 +117,6 @@ func handleMessage(msg Message) {
 		if Config.debug {
 			fmt.Printf("saving %s: %+v\n", id, astFile)
 		}
-
-		CacheClear()
 	}
 
 	for _, AstClass := range msg.Classes {
@@ -119,8 +126,6 @@ func handleMessage(msg Message) {
 		if Config.debug {
 			fmt.Printf("saving %s: %+v\n", id, AstClass)
 		}
-
-		CacheClear()
 	}
 
 	for _, astInterface := range msg.Interfaces {
@@ -130,8 +135,6 @@ func handleMessage(msg Message) {
 		if Config.debug {
 			fmt.Printf("saving %s: %+v\n", id, astInterface)
 		}
-
-		CacheClear()
 	}
 
 	for _, astMethod := range msg.Methods {
@@ -141,8 +144,6 @@ func handleMessage(msg Message) {
 		if Config.debug {
 			fmt.Printf("saving %s: %+v\n", id, astMethod)
 		}
-
-		CacheClear()
 	}
 
 	for _, astProperty := range msg.Properties {
@@ -152,8 +153,6 @@ func handleMessage(msg Message) {
 		if Config.debug {
 			fmt.Printf("saving %s: %+v\n", id, astProperty)
 		}
-
-		CacheClear()
 	}
 
 	err := qw.Close()

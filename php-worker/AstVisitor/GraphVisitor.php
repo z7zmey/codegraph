@@ -64,7 +64,7 @@ class GraphVisitor extends NodeVisitorAbstract
                 ]
             ];
         
-            $this->client->sendMessage($data);
+            $this->client->sendMessage($data, 1);
         }
         
         if ($node instanceof Node\Stmt\Interface_) {
@@ -80,7 +80,7 @@ class GraphVisitor extends NodeVisitorAbstract
                 ]
             ];
         
-            $this->client->sendMessage($data);
+            $this->client->sendMessage($data, 1);
         }
     
         if ($node instanceof Node\Stmt\ClassMethod) {
@@ -98,7 +98,7 @@ class GraphVisitor extends NodeVisitorAbstract
                 ]
             ];
         
-            $this->client->sendMessage($data);
+            $this->client->sendMessage($data, 1);
         }
     
         if ($node instanceof Node\Stmt\PropertyProperty) {
@@ -114,7 +114,7 @@ class GraphVisitor extends NodeVisitorAbstract
                 ]
             ];
         
-            $this->client->sendMessage($data);
+            $this->client->sendMessage($data, 1);
         }
     }
     
