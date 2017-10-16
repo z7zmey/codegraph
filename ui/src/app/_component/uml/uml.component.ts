@@ -93,7 +93,8 @@ export class UmlComponent implements OnInit {
 
   ngOnInit() {
     this.activatedRoute.paramMap.subscribe(params => {
-      this.apiService.getUml(params.get('path') || '')
+      if (params.get('path') !== null) {
+        this.apiService.getUml(params.get('path'))
         .subscribe(
           (response: Response) => {
             if (response.status !== 200) {
@@ -104,6 +105,7 @@ export class UmlComponent implements OnInit {
             this.showD3(response.json());
           },
         );
+      }
     });
 
 
