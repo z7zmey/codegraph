@@ -18,6 +18,7 @@
 
 namespace Worker\AstVisitor;
 
+use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitorAbstract;
 use PhpParser\Node;
 use Worker\Client;
@@ -99,6 +100,7 @@ class GraphVisitor extends NodeVisitorAbstract
             ];
         
             $this->client->sendMessage($data, 1);
+            return NodeTraverser::DONT_TRAVERSE_CHILDREN;
         }
     
         if ($node instanceof Node\Stmt\PropertyProperty) {
