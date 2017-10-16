@@ -36,11 +36,12 @@ func (i *ArrayFlags) Set(value string) error {
 }
 
 type CGConfig struct {
-	path    ArrayFlags
-	exclude ArrayFlags
-	debug   bool
-	host    string
-	port    int
+	path       ArrayFlags
+	exclude    ArrayFlags
+	debug      bool
+	host       string
+	port       int
+	phpBinPath string
 }
 
 var Config = CGConfig{}
@@ -60,6 +61,8 @@ func ParseConfigFlags() {
 
 	flag.IntVar(&Config.port, "port", 8080, "port")
 	flag.IntVar(&Config.port, "p", 8080, "port (shorthand)")
+
+	flag.StringVar(&Config.phpBinPath, "php", "php", "path to php bin")
 
 	flag.Parse()
 

@@ -34,10 +34,10 @@ import (
 	"github.com/yookoala/realpath"
 )
 
-type pathToProcess struct{
-	index int 
-	total int 
-	path string
+type pathToProcess struct {
+	index int
+	total int
+	path  string
 }
 
 func ProcessPath() {
@@ -121,13 +121,14 @@ func checkSigterm() bool {
 
 func processFileAst(codeGraphDir string, files chan pathToProcess, wg *sync.WaitGroup) {
 	for file := range files {
-		fmt.Printf("[%d/%d] proces ast for: %s\n", file.index, file.total, file.path)
-		cmd := exec.Command("php", codeGraphDir+"/php-worker/worker.php", "--file", file.path)
+		fmt.Printf("[%d/%d] proces ast for: %s\n", file.index+1, file.total, file.path)
+		cmd := exec.Command(Config.phpBinPath, codeGraphDir+"/php-worker/worker.php", "--file", file.path)
 		if Config.debug {
 			cmd.Stdout = os.Stdout
 			cmd.Stderr = os.Stderr
 		}
-		cmd.Run()
+		err := cmd.Run()
+		checkErr(err)
 		cmd.Wait()
 		wg.Done()
 	}
@@ -135,13 +136,14 @@ func processFileAst(codeGraphDir string, files chan pathToProcess, wg *sync.Wait
 
 func processFileCfg(codeGraphDir string, files chan pathToProcess, wg *sync.WaitGroup) {
 	for file := range files {
-		fmt.Printf("[%d/%d] proces cfg for: %s\n", file.index, file.total, file.path)
-		cmd := exec.Command("php", codeGraphDir+"/php-worker/worker.php", "--file", file.path, "--cfg")
+		fmt.Printf("[%d/%d] proces cfg for: %s\n", file.index+1, file.total, file.path)
+		cmd := exec.Command(Config.phpBinPath, codeGraphDir+"/php-worker/worker.php", "--file", file.path, "--cfg")
 		if Config.debug {
 			cmd.Stdout = os.Stdout
 			cmd.Stderr = os.Stderr
 		}
-		cmd.Run()
+		err := cmd.Run()
+		checkErr(err)
 		cmd.Wait()
 		wg.Done()
 	}

@@ -20,8 +20,10 @@ package main
 import (
 	"fmt"
 	"os"
+	"os/exec"
 	"os/signal"
 	"runtime"
+	"strings"
 	"syscall"
 
 	"github.com/cayleygraph/cayley"
@@ -32,6 +34,7 @@ var OsSigChan chan os.Signal
 
 func main() {
 	ParseConfigFlags()
+	checkPHPVersion()
 
 	// разобраться с ошибкой fatal error: concurrent map writes
 	runtime.GOMAXPROCS(1)
@@ -55,4 +58,17 @@ func main() {
 	<-OsSigChan
 	fmt.Println()
 	fmt.Println("exiting")
+}
+
+func checkPHPVersion() {
+	out, err := exec.Command(Config.phpBinPath, "--version").Output()
+	checkErr(err)
+
+	outStr := string(out[:])
+
+	if !strings.HasPrefix(outStr, "PHP 7") {
+		fmt.Println("PHP 7 is required to be installed")
+		fmt.Println("You can use -php flag to specify path to php binary")
+		os.Exit(1)
+	}
 }
