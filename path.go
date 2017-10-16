@@ -34,6 +34,12 @@ import (
 	"github.com/yookoala/realpath"
 )
 
+type pathToProcess struct{
+	index int 
+	total int 
+	path string
+}
+
 func ProcessPath() {
 	var err error
 	var dirs = Config.path
@@ -50,7 +56,7 @@ func ProcessPath() {
 
 	var wg sync.WaitGroup
 
-	var astFileChan = make(chan string)
+	var astFileChan = make(chan pathToProcess)
 	go processFileAst(codeGraphDir, astFileChan, &wg)
 	go processFileAst(codeGraphDir, astFileChan, &wg)
 	go processFileAst(codeGraphDir, astFileChan, &wg)
@@ -69,32 +75,32 @@ func ProcessPath() {
 		}
 	}
 
-	for _, target := range targets {
+	for index, target := range targets {
 		if checkSigterm() {
 			return
 		}
 
 		wg.Add(1)
-		astFileChan <- target
+		astFileChan <- pathToProcess{index, len(targets), target}
 	}
 
 	wg.Wait()
 
-	go setMethodsImplementations()
+	setMethodsImplementations()
 
-	var cfgFileChan = make(chan string)
+	var cfgFileChan = make(chan pathToProcess)
 	go processFileCfg(codeGraphDir, cfgFileChan, &wg)
 	go processFileCfg(codeGraphDir, cfgFileChan, &wg)
 	go processFileCfg(codeGraphDir, cfgFileChan, &wg)
 	go processFileCfg(codeGraphDir, cfgFileChan, &wg)
 
-	for _, target := range targets {
+	for index, target := range targets {
 		if checkSigterm() {
 			return
 		}
 
 		wg.Add(1)
-		cfgFileChan <- target
+		cfgFileChan <- pathToProcess{index, len(targets), target}
 	}
 
 	wg.Wait()
@@ -113,10 +119,10 @@ func checkSigterm() bool {
 	}
 }
 
-func processFileAst(codeGraphDir string, files chan string, wg *sync.WaitGroup) {
+func processFileAst(codeGraphDir string, files chan pathToProcess, wg *sync.WaitGroup) {
 	for file := range files {
-		fmt.Printf("proces ast for: %s\n", file)
-		cmd := exec.Command("php", codeGraphDir+"/php-worker/worker.php", "--file", file)
+		fmt.Printf("[%d/%d] proces ast for: %s\n", file.index, file.total, file.path)
+		cmd := exec.Command("php", codeGraphDir+"/php-worker/worker.php", "--file", file.path)
 		if Config.debug {
 			cmd.Stdout = os.Stdout
 			cmd.Stderr = os.Stderr
@@ -127,10 +133,10 @@ func processFileAst(codeGraphDir string, files chan string, wg *sync.WaitGroup) 
 	}
 }
 
-func processFileCfg(codeGraphDir string, files chan string, wg *sync.WaitGroup) {
+func processFileCfg(codeGraphDir string, files chan pathToProcess, wg *sync.WaitGroup) {
 	for file := range files {
-		fmt.Printf("proces cfg for: %s\n", file)
-		cmd := exec.Command("php", codeGraphDir+"/php-worker/worker.php", "--file", file, "--cfg")
+		fmt.Printf("[%d/%d] proces cfg for: %s\n", file.index, file.total, file.path)
+		cmd := exec.Command("php", codeGraphDir+"/php-worker/worker.php", "--file", file.path, "--cfg")
 		if Config.debug {
 			cmd.Stdout = os.Stdout
 			cmd.Stderr = os.Stderr
@@ -153,7 +159,9 @@ func setMethodsImplementations() {
 			return
 		}
 
+		schema.Optimize = false
 		setMethodImplementations(method)
+		schema.Optimize = true
 	}
 }
 
@@ -170,12 +178,12 @@ func setMethodImplementations(method AstMethod) {
 		Has(quad.IRI("ast:name"), quad.String(method.Name)).
 		Except(cayley.StartPath(store).Has(quad.IRI("ast:is_abstract"), quad.Bool(true)))
 
-	var implementations []AstMethod
-	err := schema.LoadPathTo(nil, store, &implementations, p)
+	implementations := &[]AstMethod{}
+	err := schema.LoadPathTo(nil, store, implementations, p)
 	checkErr(err)
 
 	method.Implementations = []quad.IRI{}
-	for _, implementation := range implementations {
+	for _, implementation := range *implementations {
 		if Config.debug {
 			fmt.Printf("find implementation for %s: %s\n", method.ID, implementation.ID)
 		}
@@ -183,6 +191,7 @@ func setMethodImplementations(method AstMethod) {
 	}
 
 	qw := graph.NewWriter(store)
+	defer qw.Close()
 	id, err := schema.WriteAsQuads(qw, method)
 	checkErr(err)
 	if Config.debug {
