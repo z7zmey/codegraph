@@ -40,7 +40,7 @@ cd /path/to/php/src
 codegraph
 ```
 
-[dashboard](http://localhost:8080/app)
+Dashboard: http://localhost:8080/app
 
 Флаги
 -----
