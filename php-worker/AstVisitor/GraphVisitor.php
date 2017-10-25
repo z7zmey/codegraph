@@ -61,6 +61,7 @@ class GraphVisitor extends NodeVisitorAbstract
                         'extends' => $node->extends,
                         'implements' => $node->implements,
                         'isAbstract' => $node->isAbstract(),
+                        'isInterface' => false,
                     ]
                 ]
             ];
@@ -70,13 +71,15 @@ class GraphVisitor extends NodeVisitorAbstract
         
         if ($node instanceof Node\Stmt\Interface_) {
             $data = [
-                'interfaces' => [
+                'classes' => [
                     [
                         'name' => (string)$node->namespacedName,
                         'startLine' => $node->getAttribute('startLine'),
                         'endLine' => $node->getAttribute('endLine'),
                         'file' => $this->file,
-                        'extends' => $node->extends,
+                        'implements' => $node->extends,
+                        'isAbstract' => false,
+                        'isInterface' => true,
                     ]
                 ]
             ];

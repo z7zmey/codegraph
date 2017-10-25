@@ -38,16 +38,9 @@ type AstClass struct {
 	Extends    quad.IRI   `json:"extends" quad:"ast:extends,optional"`
 	Implements []quad.IRI `json:"implements" quad:"ast:implements,optional"`
 	IsAbstract bool       `json:"isAbstract" quad:"ast:is_abstract,optional"`
+	IsInterface bool       `json:"isInterface" quad:"ast:is_interface,optional"`
 }
 
-type AstInterface struct {
-	rdfType   struct{}   `quad:"@type > ast:class"`
-	Name      string     `json:"name" quad:"@id"`
-	StartLine int        `json:"startLine" quad:"ast:start_line,optional"`
-	EndLine   int        `json:"endLine" quad:"ast:end_line,optional"`
-	File      quad.IRI   `json:"file" quad:"ast:file"`
-	Extends   []quad.IRI `json:"extends" quad:"ast:extends,optional"`
-}
 
 type AstMethod struct {
 	rdfType         struct{}   `quad:"@type > ast:method"`
@@ -76,7 +69,6 @@ func InitSchema() {
 
 	schema.RegisterType(quad.IRI("ast:file"), AstFile{})
 	schema.RegisterType(quad.IRI("ast:class"), AstClass{})
-	schema.RegisterType(quad.IRI("ast:interface"), AstInterface{})
 	schema.RegisterType(quad.IRI("ast:method"), AstMethod{})
 	schema.RegisterType(quad.IRI("ast:property"), AstProperty{})
 }

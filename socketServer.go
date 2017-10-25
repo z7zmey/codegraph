@@ -40,7 +40,6 @@ const (
 type Message struct {
 	Files      []AstFile      `json:"files"`
 	Classes    []AstClass     `json:"classes"`
-	Interfaces []AstInterface `json:"interfaces"`
 	Methods    []AstMethod    `json:"methods"`
 	Properties []AstProperty  `json:"properties"`
 }
@@ -125,15 +124,6 @@ func handleMessage(msg Message) {
 
 		if Config.debug {
 			fmt.Printf("saving %s: %+v\n", id, AstClass)
-		}
-	}
-
-	for _, astInterface := range msg.Interfaces {
-		var id, err = schema.WriteAsQuads(qw, astInterface)
-		checkErr(err)
-
-		if Config.debug {
-			fmt.Printf("saving %s: %+v\n", id, astInterface)
 		}
 	}
 

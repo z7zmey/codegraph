@@ -29,6 +29,7 @@ import (
 	"github.com/gorilla/mux"
 
 	"github.com/cayleygraph/cayley"
+	"github.com/cayleygraph/cayley/graph/path"
 	"github.com/cayleygraph/cayley/quad"
 	"github.com/cayleygraph/cayley/schema"
 
@@ -82,9 +83,14 @@ type uml struct {
 	Extends    string
 	Methods    []umlMethod
 	Implements []string
+	IsAbstract bool
 }
 
-func loadUmlForFile(pathes []string, classes *[]AstClass) {
+func getCayleyPathForUml(pathes []string) *path.Path {
+	if len(pathes) == 0 {
+		return cayley.StartPath(store)
+	}
+
 	has := []quad.Value{}
 
 	for _, path := range pathes {
@@ -99,47 +105,42 @@ func loadUmlForFile(pathes []string, classes *[]AstClass) {
 
 	pParent := pBase.FollowRecursive(pImplements, []string{}).Tag("main").Back("main")
 
-	p := pBase.Or(pParent)
+	return pBase.Or(pParent).Unique()
+}
 
-	err := schema.LoadPathTo(nil, store, classes, p)
-	checkErr(err)
+func getFilesInPath(path string) []string {
+	files := []string{}
+	visit := func(path string, info os.FileInfo, err error) error {
+		files = append(files, path)
+		return nil
+	}
+
+	err := filepath.Walk(path, visit)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return files
 }
 
 func GetUml(w http.ResponseWriter, r *http.Request) {
 	resp := make([]uml, 0)
 	vars := mux.Vars(r)
 
+	files := getFilesInPath(vars["path"])
 	var classes []AstClass
-
-	if vars["path"] != "" {
-		fi, err := os.Stat(vars["path"])
-		if err != nil {
-			log.Fatal(err)
-		}
-		if fi.IsDir() {
-			pathes := []string{}
-
-			visit := func(path string, info os.FileInfo, err error) error {
-				pathes = append(pathes, path)
-				return nil
-			}
-
-			err = filepath.Walk(vars["path"], visit)
-			if err != nil {
-				log.Fatal(err)
-			}
-
-			loadUmlForFile(pathes, &classes)
-		} else {
-			loadUmlForFile([]string{vars["path"]}, &classes)
-		}
-	} else {
-		err := schema.LoadTo(nil, store, &classes)
-		checkErr(err)
-	}
+	p := getCayleyPathForUml(files)
+	err := schema.LoadPathTo(nil, store, &classes, p)
+	checkErr(err)
 
 	for _, astClass := range classes {
-		var cls = uml{astClass.Name, string(astClass.Extends), []umlMethod{}, []string{}}
+		var cls = uml{
+			astClass.Name, 
+			string(astClass.Extends), 
+			[]umlMethod{}, 
+			[]string{}, 
+			astClass.IsAbstract || astClass.IsInterface,
+		}
 
 		for _, implements := range astClass.Implements {
 			cls.Implements = append(cls.Implements, string(implements))
@@ -162,6 +163,7 @@ func GetUml(w http.ResponseWriter, r *http.Request) {
 		resp = append(resp, cls)
 	}
 
+	w.Header().Set("Content-Type", "application/json")
 	encoder := json.NewEncoder(w)
 	encoder.Encode(resp)
 }

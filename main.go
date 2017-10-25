@@ -36,6 +36,8 @@ func main() {
 	ParseConfigFlags()
 	checkPHPVersion()
 
+	// schema.Optimize = false
+
 	// разобраться с ошибкой fatal error: concurrent map writes
 	runtime.GOMAXPROCS(1)
 

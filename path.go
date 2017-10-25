@@ -161,9 +161,7 @@ func setMethodsImplementations() {
 			return
 		}
 
-		schema.Optimize = false
 		setMethodImplementations(method)
-		schema.Optimize = true
 	}
 }
 
