@@ -30,17 +30,16 @@ type AstFile struct {
 }
 
 type AstClass struct {
-	rdfType    struct{}   `quad:"@type > ast:class"`
-	Name       string     `json:"name" quad:"@id"`
-	StartLine  int        `json:"startLine" quad:"ast:start_line,optional"`
-	EndLine    int        `json:"endLine" quad:"ast:end_line,optional"`
-	File       quad.IRI   `json:"file" quad:"ast:file"`
-	Extends    quad.IRI   `json:"extends" quad:"ast:extends,optional"`
-	Implements []quad.IRI `json:"implements" quad:"ast:implements,optional"`
-	IsAbstract bool       `json:"isAbstract" quad:"ast:is_abstract,optional"`
+	rdfType     struct{}   `quad:"@type > ast:class"`
+	Name        string     `json:"name" quad:"@id"`
+	StartLine   int        `json:"startLine" quad:"ast:start_line,optional"`
+	EndLine     int        `json:"endLine" quad:"ast:end_line,optional"`
+	File        quad.IRI   `json:"file" quad:"ast:file"`
+	Extends     quad.IRI   `json:"extends" quad:"ast:extends,optional"`
+	Implements  []quad.IRI `json:"implements" quad:"ast:implements,optional"`
+	IsAbstract  bool       `json:"isAbstract" quad:"ast:is_abstract,optional"`
 	IsInterface bool       `json:"isInterface" quad:"ast:is_interface,optional"`
 }
-
 
 type AstMethod struct {
 	rdfType         struct{}   `quad:"@type > ast:method"`
@@ -53,6 +52,7 @@ type AstMethod struct {
 	Calls           []quad.IRI `json:"calls" quad:"ast:calls,optional"`
 	IsAbstract      bool       `json:"isAbstract" quad:"ast:is_abstract,optional"`
 	Implementations []quad.IRI `json:"implementations" quad:"ast:method_implementation,optional"`
+	Visibility      string     `json:"visibility" quad:"ast:method_visibility,optional"`
 }
 
 type AstProperty struct {

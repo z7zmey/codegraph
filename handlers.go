@@ -74,8 +74,9 @@ func GetTree(w http.ResponseWriter, r *http.Request) {
 }
 
 type umlMethod struct {
-	NsName string
-	Name   string
+	NsName     string
+	Name       string
+	Visibility string
 }
 
 type uml struct {
@@ -135,10 +136,10 @@ func GetUml(w http.ResponseWriter, r *http.Request) {
 
 	for _, astClass := range classes {
 		var cls = uml{
-			astClass.Name, 
-			string(astClass.Extends), 
-			[]umlMethod{}, 
-			[]string{}, 
+			astClass.Name,
+			string(astClass.Extends),
+			[]umlMethod{},
+			[]string{},
 			astClass.IsAbstract || astClass.IsInterface,
 		}
 
@@ -156,6 +157,7 @@ func GetUml(w http.ResponseWriter, r *http.Request) {
 			var umlMethod = umlMethod{
 				astMethod.ID,
 				astMethod.Name,
+				astMethod.Visibility,
 			}
 			cls.Methods = append(cls.Methods, umlMethod)
 		}

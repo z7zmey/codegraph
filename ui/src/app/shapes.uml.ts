@@ -34,7 +34,7 @@ export const uml = function (parent, bbox, node) {
       .append("text")
       .attr('data-method', '')
       .text(function (d) {
-        return d.Name
+        return d.Visibility + ' ' + d.Name
       })
       .style("cursor", "pointer");
 

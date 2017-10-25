@@ -88,6 +88,18 @@ class GraphVisitor extends NodeVisitorAbstract
         }
     
         if ($node instanceof Node\Stmt\ClassMethod) {
+            $visibility = '';
+            
+            if ($node->isPublic()) {
+                $visibility = '+';
+            }
+            if ($node->isProtected()) {
+                $visibility = '#';
+            }
+            if ($node->isPrivate()) {
+                $visibility = '-';
+            }
+
             $data = [
                 'methods' => [
                     [
@@ -98,6 +110,7 @@ class GraphVisitor extends NodeVisitorAbstract
                         'class' => (string)$node->parent->namespacedName,
                         'types' => $node->returnTypes,
                         'isAbstract' => $node->isAbstract() || $node->parent instanceof Node\Stmt\Interface_,
+                        'visibility' => $visibility
                     ]
                 ]
             ];
