@@ -66,7 +66,9 @@ func handleAstRequest(connections chan net.Conn) {
 		conn.Write(CacheGetAst())
 		t2 := time.Now()
 
-		fmt.Printf("socket get ast: %s\n", t2.Sub(t1))
+		if Config.debug {
+			fmt.Printf("socket get ast: %s\n", t2.Sub(t1))
+		}
 
 		conn.Close()
 	}
