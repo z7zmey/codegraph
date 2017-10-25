@@ -27,6 +27,5 @@ export class AppComponent {
 
   protected onEvent($event) {
     this.router.navigate(['/uml',  { path: $event.node.id }]);
-    console.log($event);
   }
 }

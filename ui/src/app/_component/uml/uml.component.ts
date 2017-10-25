@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ApiService } from '../../_service/api.service';
 import { Response } from '@angular/http';
 import { Router, ActivatedRoute } from '@angular/router';
+import { uml } from '../../shapes.uml';
 import * as d3 from 'd3';
 
 declare const $: any;
@@ -17,78 +18,7 @@ export class UmlComponent implements OnInit {
   constructor(private apiService: ApiService, private router: Router, private activatedRoute: ActivatedRoute) {
     let render = new dagreD3.render();
 
-    render.shapes().uml = function (parent, bbox, node) {
-      var rowHeight = 30;
-      var width = 0;
-      var height = node.methods.length * rowHeight + rowHeight;
-
-      var g = parent.insert("g", ":first-child");
-
-      var rectangles = g.selectAll('rect')
-        .data(node.methods)
-        .enter()
-        .append("rect")
-        .attr('data-method', '')
-        .style("cursor", "pointer");
-
-      var headerRect = g.insert("rect", ":first-child").style("fill", "#eee");
-
-      rectangles.attr("x", 0)
-        .attr("y", function (d, k) {
-          return rowHeight * k + rowHeight
-        })
-        .attr("height", rowHeight);
-
-      headerRect.attr("x", 0)
-        .attr("y", 0)
-        .attr("height", rowHeight);
-
-      var text = g.selectAll('text')
-        .data(node.methods)
-        .enter()
-        .append("text")
-        .attr('data-method', '')
-        .text(function (d) {
-          return d.Name
-        })
-        .style("cursor", "pointer");
-
-      var headerText = g.insert("text").text(node['name']).style("font-weight", "bold");
-
-      headerText.each(function () {
-        var textWidth = this.getComputedTextLength();
-        width = textWidth > width ? textWidth : width;
-      });
-      text.each(function () {
-        var textWidth = this.getComputedTextLength();
-        width = textWidth > width ? textWidth : width;
-      });
-
-      text.attr("x", 15)
-        .attr("dy", "1em")
-        .attr("y", function (d, k) {
-          return (rowHeight * k + rowHeight) + ((rowHeight - this.getBBox().height) / 2)
-        });
-
-      headerText.attr("x", 15)
-        .attr("dy", "1em")
-        .attr("y", function (d, k) {
-          return ((rowHeight - this.getBBox().height) / 2)
-        });
-
-      width += 30;
-
-      rectangles.attr("width", width);
-      headerRect.attr("width", width);
-      g.attr("transform", "translate(" + (-width / 2) + "," + (-height / 2) + ")");
-
-      parent.select('.label').remove();
-
-      node.intersect = function (point) {
-        return dagreD3.intersect.rect(node, point);
-      };
-      return g;
-    };
+    render.shapes().uml = uml;
   }
 
   ngOnInit() {
@@ -122,7 +52,7 @@ export class UmlComponent implements OnInit {
 
     var classes = {};
     data.forEach(function (node) {
-      g.setNode(node['Name'], { shape: "uml", name: node['Name'], methods: node['Methods'] });
+      g.setNode(node['Name'], { shape: "uml", data: node });
       classes[node['Name']] = node['Name'];
     });
 
