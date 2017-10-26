@@ -49,9 +49,6 @@ type CGConfig struct {
 var Config = CGConfig{}
 
 func ParseConfigFlags() {
-	flag.Var(&Config.path, "path", "path to sources")
-	flag.Var(&Config.path, "P", "path to sources (shorthand)")
-
 	flag.Var(&Config.exclude, "exclude", "exclude path")
 	flag.Var(&Config.exclude, "e", "exclude path (shorthand)")
 
@@ -68,11 +65,13 @@ func ParseConfigFlags() {
 
 	flag.Parse()
 
-	setDefaultPath()
+	prepareConfigPath()
 	convertToRealPath()
 }
 
-func setDefaultPath() {
+func prepareConfigPath() {
+	Config.path = flag.Args()
+
 	if len(Config.path) == 0 {
 		path, err := os.Getwd()
 		if err != nil {
