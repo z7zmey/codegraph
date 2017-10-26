@@ -22,6 +22,8 @@ import (
 	"log"
 	"os"
 	"strings"
+
+	"github.com/yookoala/realpath"
 )
 
 type ArrayFlags []string
@@ -66,6 +68,11 @@ func ParseConfigFlags() {
 
 	flag.Parse()
 
+	setDefaultPath()
+	convertToRealPath()
+}
+
+func setDefaultPath() {
 	if len(Config.path) == 0 {
 		path, err := os.Getwd()
 		if err != nil {
@@ -73,5 +80,19 @@ func ParseConfigFlags() {
 		}
 
 		Config.path = ArrayFlags{path}
+	}
+}
+
+func convertToRealPath() {
+	for i, path := range Config.path {
+		real, err := realpath.Realpath(path)
+		checkErr(err)
+		Config.path[i] = real
+	}
+
+	for i, path := range Config.exclude {
+		real, err := realpath.Realpath(path)
+		checkErr(err)
+		Config.exclude[i] = real
 	}
 }
