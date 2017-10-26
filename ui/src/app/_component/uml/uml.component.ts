@@ -82,7 +82,7 @@ export class UmlComponent implements OnInit {
     svg.attr('height', g.graph().height + 40);
     svg.attr('width', g.graph().width + 40);
 
-    svg.selectAll('g.node rect[data-method], g.node text[data-method]').on('click', function (data) {
+    svg.selectAll('g.node g[data-method]').on('click', function (data, index, outer) {
       self.router.navigate(['/codeNavigator/', { methodName: data['NsName'] }]);
     });
   }
