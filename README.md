@@ -4,17 +4,17 @@
 ### debian
 
 ```bash
-wget https://github.com/z7zmey/codegraph/releases/download/v0.1.1/codegraph_0.1.1_linux_amd64.deb
-sudo dpkg -i codegraph_0.1.1_linux_amd64.deb
+wget https://github.com/z7zmey/codegraph/releases/download/v0.1.2/codegraph_0.1.2_linux_amd64.deb
+sudo dpkg -i codegraph_0.1.2_linux_amd64.deb
 
 ```
 
 ### mac os
 
 ```bash
-wget https://github.com/z7zmey/codegraph/releases/download/v0.1.1/codegraph_0.1.1_darwin_amd64.tar.gz
+wget https://github.com/z7zmey/codegraph/releases/download/v0.1.2/codegraph_0.1.2_darwin_amd64.tar.gz
 mkdir codegraph
-tar -zxvf codegraph_0.1.1_darwin_amd64.tar.gz -C codegraph
+tar -zxvf codegraph_0.1.2_darwin_amd64.tar.gz -C codegraph
 ```
 
 homebrew планируется
