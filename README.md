@@ -36,18 +36,18 @@ docker run --rm -ti -v /path/to/php/src:/src -p 8080:8080 z7zmey/codegraph
 -------------
 
 ```bash
-cd /path/to/php/src
-codegraph
+codegraph /path/to/php/src
 ```
+
+Можно не указывать путь, по умолчанию будет текущая папка.
+Можно указывать несколько путей
 
 Dashboard: http://localhost:8080/app
 
 Флаги
 -----
 
--path -P путь к php исходникам * (default current path)
-
--exclude -e путь к исключаемой папке *
+-exclude -e путь к исключаемой папке. Можно передавать повторно для указания нескольких папок.
 
 -debug -d отобразить дебаг инфо
   
@@ -56,5 +56,3 @@ Dashboard: http://localhost:8080/app
 -port -p dashboard порт (default 8080)
 
 -php путь к испольняемому файлу php (default "php")
-
-\* можно передать несколько раз для указания нескольких попок TODO: сейчас не совсем корректоно обрабатываются относительные пути
