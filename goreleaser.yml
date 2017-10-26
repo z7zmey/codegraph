@@ -29,6 +29,7 @@ fpm:
 dockers:
   - 
     image: z7zmey/codegraph
+    latest: true
     extra_files:
     - php-worker
     - ui/dist
