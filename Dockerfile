@@ -10,4 +10,4 @@ COPY php-worker /codegraph/php-worker
 COPY dist/app /codegraph/ui/dist/app
 
 EXPOSE 8080
-CMD ["/codegraph/codegraph"]
+CMD ["/codegraph/codegraph", "-h", "0.0.0.0"]
